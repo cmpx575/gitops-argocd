@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    # base
+    - repoURL: https://github.com/myorg/gitops-argocd.git
+      targetRevision: main
+      path: argocd/base
+      kustomize:
+        patches:
+          - target:
+              kind: Application
+              namespace: argocd
+            patch: |-
+              - op: replace
+                path: /spec/source/targetRevision
+                value: deploy/production
+    # production-specific
+    - repoURL: https://github.com/myorg/gitops-argocd.git
+      targetRevision: main
+      path: argocd/production
+      directory:
+        exclude: app-of-apps.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one
+  labels:
+    app.kubernetes.io/name: app-one
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app-one
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: app-one
+    spec:
+      containers:
+        - name: app-one
+          image: app-one:1.0.0
+          ports:
+            - containerPort: 80
