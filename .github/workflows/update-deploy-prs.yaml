@@ -28,7 +28,7 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - name: Checkout main branch code
+      - name: Checkout main branch
         uses: actions/checkout@v4.2.2
         with:
           ref: main # Ensure we check out the code from main
@@ -41,13 +41,13 @@ jobs:
           alias kustomize=$(pwd)/kustomize
           ./main-branch/scripts/build.sh ${{ matrix.environment }} ${{ env.KUBE_VERSION }}
 
-      - name: Checkout deploy/${{ matrix.environment }} branch code
+      - name: Checkout deploy branch (${{ matrix.environment }})
         uses: actions/checkout@v4.2.2
         with:
           ref: deploy/${{ matrix.environment }}
           path: ${{ matrix.environment }}-branch
 
-      - name: Copy build output
+      - name: Copy build output (${{ matrix.environment }})
         run: |
           find ${{ matrix.environment }}-branch -mindepth 1 -path ${{ matrix.environment }}-branch/.git -prune -o -exec rm -rf {} +
           cp -r main-branch/build/${{ matrix.environment }}/* ${{ matrix.environment }}-branch/
