@@ -49,7 +49,7 @@ jobs:
 
       - name: Check
         run: |
-          cp -r main-branch/build${{ matrix.environment }}/* ${{ matrix.environment }}-branch/
+          cp -r main-branch/build/${{ matrix.environment }}/* ${{ matrix.environment }}-branch/
 
       - name: Create Pull Request (${{ matrix.environment }})
         uses: peter-evans/create-pull-request@v7.0.8
