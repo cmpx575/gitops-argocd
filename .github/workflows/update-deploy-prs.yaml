@@ -36,7 +36,7 @@ jobs:
 
       - name: Build Manifests (${{ matrix.environment }})
         run: |
-          ls -alh
+          ls -alh main-branch
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           alias kustomize=$(pwd)/kustomize
           ./main-branch/scripts/build.sh ${{ matrix.environment }} ${{ env.KUBE_VERSION }}
@@ -45,11 +45,11 @@ jobs:
         uses: actions/checkout@v4.2.2
         with:
           ref: deploy/${{ matrix.environment }}
-          path: deploy-${{ matrix.environment }}-branch
+          path: ${{ matrix.environment }}-branch
 
       - name: Check
         run: |
-          ls -alh
+          ls -alh ${{ matrix.environment }}-branch
 
       # - name: Create Pull Request (${{ matrix.environment }})
       #   uses: peter-evans/create-pull-request@v7.0.8
