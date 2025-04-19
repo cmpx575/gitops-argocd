@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: production-only-app
-          image: production-only-app:1.0.1
+          image: production-only-app:1.0.0
           ports:
-            - containerPort: 8012
+            - containerPort: 80
