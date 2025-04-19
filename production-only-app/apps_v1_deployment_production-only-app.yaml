@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/name: production-only-app
     spec:
       containers:
-      - image: production-only-app:1.0.0
+      - image: production-only-app:1.0.1
         name: production-only-app
         ports:
-        - containerPort: 80
+        - containerPort: 8012
