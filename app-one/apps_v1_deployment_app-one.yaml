@@ -18,4 +18,4 @@ spec:
       - image: app-one:1.0.0
         name: app-one
         ports:
-        - containerPort: 8080
+        - containerPort: 80
