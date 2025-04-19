@@ -12,7 +12,7 @@ permissions:
 
 # Use repository variables for Kube versions (Create these in Repo Settings > Secrets and variables > Actions)
 env:
-  KUBE_VERSION: ${{ vars.KUBE_VERSION || '1.28.0' }} # Default if var not set
+  KUBE_VERSION: ${{ vars.KUBE_VERSION || '1.32.1' }} # Default if var not set
 
 jobs:
   create-pull-request:
@@ -40,30 +40,5 @@ jobs:
           ./scripts/build.sh ${{ matrix.environment }} ${{ env.KUBE_VERSION }}
 
       - name: Create Pull Request (${{ matrix.environment }})
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7.0.8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Update ${{ matrix.environment }} manifests from main commit ${{ github.sha }}
-          committer: GitHub Actions <actions@github.com> # Optional: Customize committer
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com> # Optional: Use triggering user as author
-          signoff: false # Optional: Add Signed-off-by
-          # Construct paths and titles directly
-          path: build/${{ matrix.environment }}
-          base: deploy/${{ matrix.environment }}
-          branch: ${{ matrix.environment }}/update-${{ github.sha }}
-          title: 🚀 DEPLOYMENT INCOMING [main ${{ github.sha_short }}] --> [deploy/${{ matrix.environment }}]
-          delete-branch: true # Delete the head branch after PR merge/close
-
-          # PR Details
-          body: |
-            Automated PR created by GitHub Actions from commit ${{ github.sha }} on the main branch.
-
-            **Environment:** ${{ matrix.environment }}
-            **Triggering Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
-
-            Please review the generated manifests.
-          # Optional: Add labels, assignees, reviewers
-          # labels: automated-pr, ${{ matrix.environment }}
-          # assignees: user1,user2
-          # reviewers: user1,user2
-          draft: false # Set to true to create draft PRs
