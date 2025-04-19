@@ -1,4 +1,4 @@
-name: Create Deploy PRs
+name: Create Deploy Pull Requests
 
 on:
   push:
@@ -50,9 +50,7 @@ jobs:
       - name: Copy build output (${{ matrix.environment }})
         run: |
           find ${{ matrix.environment }}-branch -mindepth 1 -path ${{ matrix.environment }}-branch/.git -prune -o -exec rm -rf {} +
-          tree
           cp -r main-branch/build/${{ matrix.environment }}/* ${{ matrix.environment }}-branch/
-          tree
 
       - name: Create Pull Request (${{ matrix.environment }})
         uses: peter-evans/create-pull-request@v7.0.8
@@ -61,3 +59,7 @@ jobs:
           branch: build/${{ matrix.environment }}
           delete-branch: true
           commit-message: "[main ${{ github.sha }}] -> [build/${{ matrix.environment }}]"
+          signoff: true
+          sign-commits: true
+          title: "🚀 DEPLOYMENT: ${{ matrix.environment }}"
+          body: "WARNING: Merging this PR deploys to ${{ matrix.environment }}. ArgoCD will reconcile this change."
