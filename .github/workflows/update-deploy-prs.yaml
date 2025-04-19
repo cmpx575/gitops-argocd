@@ -1,0 +1,100 @@
+name: Create Deploy PRs
+
+on:
+  push:
+    branches:
+      - main # Trigger only on pushes to the main branch
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write      # To checkout code, commit, push branches
+  pull-requests: write # To create PRs
+
+# Use repository variables for Kube versions (Create these in Repo Settings > Secrets and variables > Actions)
+env:
+  KUBE_VERSION_STAGING: ${{ vars.KUBE_VERSION_STAGING || '1.28.0' }} # Default if var not set
+  KUBE_VERSION_PRODUCTION: ${{ vars.KUBE_VERSION_PRODUCTION || '1.28.0' }} # Default if var not set
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [staging, production]
+
+    # Prevent concurrent runs for the same environment triggered by rapid pushes to main
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.environment }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Determine Kube Version & Paths
+        id: vars
+        run: |
+          if [[ "${{ matrix.environment }}" == "staging" ]]; then
+            echo "version=${{ env.KUBE_VERSION_STAGING }}" >> $GITHUB_OUTPUT
+            echo "deploy_branch=deploy/staging" >> $GITHUB_OUTPUT
+            echo "head_branch=staging/update-${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "pr_title=Update Staging Manifests (${{ github.sha_short }})" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ env.KUBE_VERSION_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "deploy_branch=deploy/production" >> $GITHUB_OUTPUT
+            echo "head_branch=production/update-${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "pr_title=Update Production Manifests (${{ github.sha_short }})" >> $GITHUB_OUTPUT
+          fi
+          echo "manifest_path=build/${{ matrix.environment }}" >> $GITHUB_OUTPUT
+          # Note: github.sha_short might need adjustment if not available, use github.sha instead
+
+      - name: Checkout main branch code
+        uses: actions/checkout@v4
+        with:
+          ref: main # Ensure we check out the code from main
+
+      - name: Setup Kustomize
+        run: |
+          # Add commands to install kustomize, pin version if desired
+          echo "Installing Kustomize..." # Replace with actual install command
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+          kustomize version
+
+      - name: Build Manifests (${{ matrix.environment }})
+        run: ./scripts/build.sh ${{ matrix.environment }} ${{ steps.vars.outputs.version }}
+
+      - name: Create Pull Request (${{ matrix.environment }})
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update ${{ matrix.environment }} manifests from main commit ${{ github.sha }}
+          committer: GitHub Actions <actions@github.com> # Optional: Customize committer
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com> # Optional: Use triggering user as author
+          signoff: false # Optional: Add Signed-off-by
+          # Path to the generated manifests relative to the repo root (from build step)
+          path: ${{ steps.vars.outputs.manifest_path }}
+          # Important: Specify the directory where the manifests should go *in the target branch*
+          # We want them in the root of the deploy/<env> branch.
+          # The action copies files FROM 'path' TO the root of the target branch structure.
+          # To achieve this, we must first prepare the files *as they should appear* in the target.
+          # Since we want the contents of build/<env>/** in the root, we use 'path'.
+          # (No separate 'target-directory' needed here as we copy to root)
+
+          # Branch names
+          base: ${{ steps.vars.outputs.deploy_branch }} # Target branch (e.g., deploy/staging)
+          branch: ${{ steps.vars.outputs.head_branch }} # Dynamically generated source branch (e.g., staging/update-...)
+          delete-branch: true # Delete the head branch after PR merge/close
+
+          # PR Details
+          title: ${{ steps.vars.outputs.pr_title }}
+          body: |
+            Automated PR created by GitHub Actions from commit ${{ github.sha }} on the main branch.
+
+            **Environment:** ${{ matrix.environment }}
+            **Triggering Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            Please review the generated manifests.
+          # Optional: Add labels, assignees, reviewers
+          # labels: automated-pr, ${{ matrix.environment }}
+          # assignees: user1,user2
+          # reviewers: user1,user2
+          draft: false # Set to true to create draft PRs
