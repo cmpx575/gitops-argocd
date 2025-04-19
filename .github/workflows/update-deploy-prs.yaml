@@ -29,22 +29,27 @@ jobs:
 
     steps:
       - name: Checkout main branch code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           ref: main # Ensure we check out the code from main
           path: main-branch
 
       - name: Build Manifests (${{ matrix.environment }})
         run: |
+          ls -alh
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           alias kustomize=$(pwd)/kustomize
           ./main-branch/scripts/build.sh ${{ matrix.environment }} ${{ env.KUBE_VERSION }}
 
       - name: Checkout deploy/${{ matrix.environment }} branch code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           ref: deploy/${{ matrix.environment }}
           path: deploy-${{ matrix.environment }}-branch
+
+      - name: Check
+        run: |
+          ls -alh
 
       # - name: Create Pull Request (${{ matrix.environment }})
       #   uses: peter-evans/create-pull-request@v7.0.8
