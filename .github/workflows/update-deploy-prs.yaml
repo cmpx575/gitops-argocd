@@ -7,7 +7,7 @@ on:
   workflow_dispatch: # Allow manual trigger
 
 permissions:
-  contents: write      # To checkout code, commit, push branches
+  contents: write # To checkout code, commit, push branches
   pull-requests: write # To create PRs
 
 # Use repository variables for Kube versions (Create these in Repo Settings > Secrets and variables > Actions)
@@ -15,7 +15,7 @@ env:
   KUBE_VERSION: ${{ vars.KUBE_VERSION || '1.28.0' }} # Default if var not set
 
 jobs:
-  create-pr:
+  createPullRequest:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
