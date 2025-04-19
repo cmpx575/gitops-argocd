@@ -34,7 +34,7 @@ jobs:
           ref: main # Ensure we check out the code from main
           path: main-branch
 
-      - name: Build Manifests (${{ matrix.environment }})
+      - name: Build manifests (${{ matrix.environment }})
         run: |
           ls -alh main-branch
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
@@ -47,9 +47,9 @@ jobs:
           ref: deploy/${{ matrix.environment }}
           path: ${{ matrix.environment }}-branch
 
-      - name: Copy Build Output
+      - name: Copy build output
         run: |
-          rm -rf ${{ matrix.environment }}-branch/*
+          find ${{ matrix.environment }}-branch -mindepth 1 -path ${{ matrix.environment }}-branch/.git -prune -o -exec rm -rf {} +
           cp -r main-branch/build/${{ matrix.environment }}/* ${{ matrix.environment }}-branch/
 
       - name: Create Pull Request (${{ matrix.environment }})
