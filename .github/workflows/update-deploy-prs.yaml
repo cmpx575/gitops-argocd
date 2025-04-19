@@ -55,3 +55,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7.0.8
         with:
           path: ${{ matrix.environment }}-branch
+          branch: build/${{ matrix.environment }}
+          base: deploy/${{ matrix.environment }}
+          delete-branch: true
