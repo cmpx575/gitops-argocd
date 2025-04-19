@@ -9,7 +9,7 @@ spec:
   project: default
   sources:
     # base
-    - repoURL: https://github.com/myorg/gitops-argocd.git
+    - repoURL: https://github.com/cmpx575/gitops-argocd.git
       targetRevision: main
       path: argocd/base
       kustomize:
@@ -22,7 +22,7 @@ spec:
                 path: /spec/source/targetRevision
                 value: deploy/production
     # production-specific
-    - repoURL: https://github.com/myorg/gitops-argocd.git
+    - repoURL: https://github.com/cmpx575/gitops-argocd.git
       targetRevision: main
       path: argocd/production
       directory:
