@@ -57,5 +57,4 @@ jobs:
         with:
           path: ${{ matrix.environment }}-branch
           branch: build/${{ matrix.environment }}
-          base: deploy/${{ matrix.environment }}
           delete-branch: true
