@@ -37,11 +37,14 @@ jobs:
             echo "deploy_branch=deploy/staging" >> $GITHUB_OUTPUT
             echo "head_branch=staging/update-${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "pr_title=Update Staging Manifests (${{ github.sha_short }})" >> $GITHUB_OUTPUT
-          else
+          elif [[ "${{ matrix.environment }}" == "production" ]]; then
             echo "version=${{ env.KUBE_VERSION_PRODUCTION }}" >> $GITHUB_OUTPUT
             echo "deploy_branch=deploy/production" >> $GITHUB_OUTPUT
             echo "head_branch=production/update-${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "pr_title=Update Production Manifests (${{ github.sha_short }})" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Unexpected environment value '${{ matrix.environment }}'" >&2
+            exit 1
           fi
           echo "manifest_path=build/${{ matrix.environment }}" >> $GITHUB_OUTPUT
           # Note: github.sha_short might need adjustment if not available, use github.sha instead
