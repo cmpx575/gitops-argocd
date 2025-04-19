@@ -54,9 +54,12 @@ echo "🐳	Kubernetes version: ${KUBE_VERSION}"
 
 # Check if source directory exists for the specified environment.
 echo "--------------------------------------------------------------------------------"
+echo "🧹	Checking source directory for ${BUILD_ENV} at ${ENV_SRC_DIR}..."
 if [[ ! -d "${ENV_SRC_DIR}" ]]; then
-  echo "❌	Error: Source directory for environment '${BUILD_ENV}' does not exist at ${ENV_SRC_DIR}." >&2
+  echo "❌	Error: Source directory for ${BUILD_ENV} does not exist at ${ENV_SRC_DIR}." >&2
   exit 1
+else
+  echo "✅	Source directory for ${BUILD_ENV} exists at ${ENV_SRC_DIR}."
 fi
 
 # Clean the build directory for the specified environment.
