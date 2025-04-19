@@ -60,3 +60,4 @@ jobs:
           path: ${{ matrix.environment }}-branch
           branch: build/${{ matrix.environment }}
           delete-branch: true
+          commit-message: "[main $(/usr/bin/git rev-parse --short HEAD)] -> [build/${{ matrix.environment }}]"
