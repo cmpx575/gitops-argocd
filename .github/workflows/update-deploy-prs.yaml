@@ -36,7 +36,7 @@ jobs:
       - name: Build Manifests (${{ matrix.environment }})
         run: |
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          sudo mv kustomize /usr/local/bin/
+          alias kustomize=$(pwd)/kustomize
           ./scripts/build.sh ${{ matrix.environment }} ${{ env.KUBE_VERSION }}
 
       - name: Create Pull Request (${{ matrix.environment }})
