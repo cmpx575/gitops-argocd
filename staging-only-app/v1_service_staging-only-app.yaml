@@ -4,8 +4,8 @@ metadata:
   name: staging-only-app
 spec:
   ports:
-  - port: 80
+  - port: 801
     protocol: TCP
-    targetPort: 80
+    targetPort: 801
   selector:
     app.kubernetes.io/name: staging-only-app
