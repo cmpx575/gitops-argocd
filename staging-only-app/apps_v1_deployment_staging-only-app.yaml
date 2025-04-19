@@ -18,4 +18,4 @@ spec:
       - image: staging-only-app:1.0.0
         name: staging-only-app
         ports:
-        - containerPort: 801
+        - containerPort: 8080
