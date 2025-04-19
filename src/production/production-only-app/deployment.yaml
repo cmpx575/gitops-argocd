@@ -18,4 +18,4 @@ spec:
         - name: production-only-app
           image: production-only-app:1.0.0
           ports:
-            - containerPort: 80222
+            - containerPort: 80222677878
