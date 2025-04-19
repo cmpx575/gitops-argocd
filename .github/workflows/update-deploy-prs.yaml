@@ -50,7 +50,9 @@ jobs:
       - name: Copy build output (${{ matrix.environment }})
         run: |
           find ${{ matrix.environment }}-branch -mindepth 1 -path ${{ matrix.environment }}-branch/.git -prune -o -exec rm -rf {} +
+          tree
           cp -r main-branch/build/${{ matrix.environment }}/* ${{ matrix.environment }}-branch/
+          tree
 
       - name: Create Pull Request (${{ matrix.environment }})
         uses: peter-evans/create-pull-request@v7.0.8
