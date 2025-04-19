@@ -12,8 +12,7 @@ permissions:
 
 # Use repository variables for Kube versions (Create these in Repo Settings > Secrets and variables > Actions)
 env:
-  KUBE_VERSION_STAGING: ${{ vars.KUBE_VERSION_STAGING || '1.28.0' }} # Default if var not set
-  KUBE_VERSION_PRODUCTION: ${{ vars.KUBE_VERSION_PRODUCTION || '1.28.0' }} # Default if var not set
+  KUBE_VERSION: ${{ vars.KUBE_VERSION || '1.28.0' }} # Default if var not set
 
 jobs:
   create-pr:
@@ -32,21 +31,22 @@ jobs:
       - name: Determine Kube Version & Paths
         id: vars
         run: |
-          if [[ "${{ matrix.environment }}" == "staging" ]]; then
-            echo "version=${{ env.KUBE_VERSION_STAGING }}" >> $GITHUB_OUTPUT
-            echo "deploy_branch=deploy/staging" >> $GITHUB_OUTPUT
-            echo "head_branch=staging/update-${{ github.sha }}" >> $GITHUB_OUTPUT
-            echo "pr_title=Update Staging Manifests (${{ github.sha_short }})" >> $GITHUB_OUTPUT
-          elif [[ "${{ matrix.environment }}" == "production" ]]; then
-            echo "version=${{ env.KUBE_VERSION_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "deploy_branch=deploy/production" >> $GITHUB_OUTPUT
-            echo "head_branch=production/update-${{ github.sha }}" >> $GITHUB_OUTPUT
-            echo "pr_title=Update Production Manifests (${{ github.sha_short }})" >> $GITHUB_OUTPUT
-          else
-            echo "Error: Unexpected environment value '${{ matrix.environment }}'" >&2
+          # Common variable
+          echo "version=${{ env.KUBE_VERSION }}" >> $GITHUB_OUTPUT
+
+          # Validate environment
+          ENV="${{ matrix.environment }}"
+          if [[ "$ENV" != "staging" && "$ENV" != "production" ]]; then
+            echo "Error: Unexpected environment value '$ENV'" >&2
             exit 1
           fi
-          echo "manifest_path=build/${{ matrix.environment }}" >> $GITHUB_OUTPUT
+
+          # Set environment-specific variables using the validated $ENV
+          echo "deploy_branch=deploy/$ENV" >> $GITHUB_OUTPUT
+          echo "head_branch=$ENV/update-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "pr_title=🚀 DEPLOYMENT [main ${{ github.sha_short }}] --> [deploy/$ENV]" >> $GITHUB_OUTPUT
+          echo "manifest_path=build/$ENV" >> $GITHUB_OUTPUT
+
           # Note: github.sha_short might need adjustment if not available, use github.sha instead
 
       - name: Checkout main branch code
