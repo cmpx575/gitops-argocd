@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: app-one
-          image: app-one:1.0.0
+          image: app-one:1.2.0
           ports:
             - containerPort: 80
