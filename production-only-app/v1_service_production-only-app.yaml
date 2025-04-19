@@ -4,8 +4,8 @@ metadata:
   name: production-only-app
 spec:
   ports:
-  - port: 80
+  - port: 802
     protocol: TCP
-    targetPort: 80
+    targetPort: 802
   selector:
     app.kubernetes.io/name: production-only-app
